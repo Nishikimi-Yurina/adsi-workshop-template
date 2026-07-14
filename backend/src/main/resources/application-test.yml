@@ -12,3 +12,11 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+server:
+  servlet:
+    session:
+      cookie:
+        path: /
+        same-site: none
+        secure: false

@@ -32,13 +32,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (employeeCode: string, password: string) => {
-    await apiFetch('/api/auth/login', {
+    const loginRes = await apiFetch<{ id: number; employeeCode: string; name: string; role: 'EMPLOYEE' | 'ADMIN' }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ employeeCode, password }),
       skipAuth: true,
     });
-    const me = await apiFetch<User>('/api/auth/me', { skipAuth: true });
-    setUser(me);
+    try {
+      const me = await apiFetch<User>('/api/auth/me', { skipAuth: true });
+      setUser(me);
+    } catch {
+      setUser({ id: loginRes.id, employeeCode: loginRes.employeeCode, name: loginRes.name, email: '', role: loginRes.role });
+    }
   }, []);
 
   const logout = useCallback(async () => {
