@@ -6,8 +6,10 @@ import com.example.attendance.entity.Employee;
 import com.example.attendance.repository.AttendanceRecordRepository;
 import com.example.attendance.repository.EmployeeRepository;
 import com.example.attendance.vo.WorkDuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -28,7 +30,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Override
     public MonthlyReportResponse getReport(Long employeeId, YearMonth yearMonth) {
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow();
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "社員が見つかりません"));
         LocalDate start = yearMonth.atDay(1);
         LocalDate end = yearMonth.atEndOfMonth();
         List<AttendanceRecord> records = attendanceRepository.findByEmployeeIdAndDateBetween(employeeId, start, end);
