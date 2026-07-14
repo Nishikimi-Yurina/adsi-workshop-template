@@ -128,6 +128,17 @@ class AttendanceControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin")
+    @DisplayName("GET /api/attendance/records: yearMonthが不正な場合400が返る")
+    void getRecords_invalidYearMonth_returns400() throws Exception {
+        when(authService.getEmployeeId("admin")).thenReturn(1L);
+
+        mockMvc.perform(get("/api/attendance/records").param("yearMonth", "invalid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("日付形式が不正です。YYYY-MM の形式で指定してください"));
+    }
+
+    @Test
     @DisplayName("未認証でアクセスすると401")
     void unauthenticated_returns401() throws Exception {
         mockMvc.perform(post("/api/attendance/clock-in").with(csrf()))

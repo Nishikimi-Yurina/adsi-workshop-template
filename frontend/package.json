@@ -7,7 +7,9 @@
     "dev:sagemaker": "SAGEMAKER=1 next dev -p 3001",
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 3001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "next": "^15.1.0",
