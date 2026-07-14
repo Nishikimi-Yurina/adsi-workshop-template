@@ -1,18 +1,27 @@
 'use client';
 
-import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
-const navItems = [
-  { href: '/', label: 'ダッシュボード', roles: ['EMPLOYEE', 'ADMIN'] },
-  { href: '/attendance', label: '勤怠一覧', roles: ['EMPLOYEE', 'ADMIN'] },
-  { href: '/leave-requests', label: '休暇申請', roles: ['EMPLOYEE', 'ADMIN'] },
-  { href: '/overtime-requests', label: '残業申請', roles: ['EMPLOYEE', 'ADMIN'] },
-  { href: '/approvals', label: '承認管理', roles: ['ADMIN'] },
-  { href: '/reports/monthly', label: '月次レポート', roles: ['EMPLOYEE', 'ADMIN'] },
+type View = 'dashboard' | 'attendance' | 'reports';
+
+interface NavItem {
+  view: View;
+  label: string;
+  roles: string[];
+}
+
+const navItems: NavItem[] = [
+  { view: 'dashboard', label: 'ダッシュボード', roles: ['EMPLOYEE', 'ADMIN'] },
+  { view: 'attendance', label: '勤怠一覧', roles: ['EMPLOYEE', 'ADMIN'] },
+  { view: 'reports', label: '月次レポート', roles: ['EMPLOYEE', 'ADMIN'] },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate: (view: View) => void;
+  currentView: View;
+}
+
+export function Sidebar({ onNavigate, currentView }: SidebarProps) {
   const { user } = useAuth();
 
   const visibleItems = navItems.filter(
@@ -24,13 +33,17 @@ export function Sidebar() {
       <nav>
         <ul className="space-y-1">
           {visibleItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className="block px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-200"
+            <li key={item.view}>
+              <button
+                onClick={() => onNavigate(item.view)}
+                className={`block w-full text-left px-3 py-2 rounded text-sm ${
+                  currentView === item.view
+                    ? 'bg-blue-100 text-blue-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-200'
+                }`}
               >
                 {item.label}
-              </Link>
+              </button>
             </li>
           ))}
         </ul>
