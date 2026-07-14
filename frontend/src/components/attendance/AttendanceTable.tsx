@@ -1,13 +1,6 @@
 'use client';
 
-interface AttendanceRecord {
-  id: number;
-  date: string;
-  clockIn: string;
-  clockOut: string | null;
-  workMinutes: number | null;
-  overtimeMinutes: number | null;
-}
+import type { AttendanceRecord } from '@/types/attendance';
 
 interface AttendanceTableProps {
   records: AttendanceRecord[];

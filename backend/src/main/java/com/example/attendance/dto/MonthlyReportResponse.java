@@ -6,8 +6,6 @@ public record MonthlyReportResponse(
         String yearMonth,
         int workDays,
         int totalWorkMinutes,
-        int totalOvertimeMinutes,
-        int paidLeaveDays,
-        int absenceDays
+        int totalOvertimeMinutes
 ) {
 }

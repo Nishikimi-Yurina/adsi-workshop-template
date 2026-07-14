@@ -9,26 +9,7 @@ import { TodayStatus } from '@/components/attendance/TodayStatus';
 import { AttendanceTable } from '@/components/attendance/AttendanceTable';
 import { MonthlyReportTable } from '@/components/reports/MonthlyReportTable';
 import { apiFetch } from '@/lib/api-client';
-
-interface AttendanceRecord {
-  id: number;
-  date: string;
-  clockIn: string;
-  clockOut: string | null;
-  workMinutes: number | null;
-  overtimeMinutes: number | null;
-}
-
-interface MonthlyReport {
-  employeeId: number;
-  employeeName: string;
-  yearMonth: string;
-  workDays: number;
-  totalWorkMinutes: number;
-  totalOvertimeMinutes: number;
-  paidLeaveDays: number;
-  absenceDays: number;
-}
+import type { AttendanceRecord, MonthlyReport } from '@/types/attendance';
 
 type View = 'dashboard' | 'attendance' | 'reports';
 

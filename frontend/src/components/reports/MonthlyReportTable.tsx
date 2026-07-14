@@ -1,15 +1,6 @@
 'use client';
 
-interface MonthlyReport {
-  employeeId: number;
-  employeeName: string;
-  yearMonth: string;
-  workDays: number;
-  totalWorkMinutes: number;
-  totalOvertimeMinutes: number;
-  paidLeaveDays: number;
-  absenceDays: number;
-}
+import type { MonthlyReport } from '@/types/attendance';
 
 interface MonthlyReportTableProps {
   reports: MonthlyReport[];
@@ -30,8 +21,6 @@ export function MonthlyReportTable({ reports }: MonthlyReportTableProps) {
           <th className="py-2 text-left">勤務日数</th>
           <th className="py-2 text-left">総勤務時間</th>
           <th className="py-2 text-left">残業時間</th>
-          <th className="py-2 text-left">有給</th>
-          <th className="py-2 text-left">欠勤</th>
         </tr>
       </thead>
       <tbody>
@@ -41,12 +30,10 @@ export function MonthlyReportTable({ reports }: MonthlyReportTableProps) {
             <td className="py-2">{report.workDays}日</td>
             <td className="py-2">{formatMinutes(report.totalWorkMinutes)}</td>
             <td className="py-2">{formatMinutes(report.totalOvertimeMinutes)}</td>
-            <td className="py-2">{report.paidLeaveDays}日</td>
-            <td className="py-2">{report.absenceDays}日</td>
           </tr>
         ))}
         {reports.length === 0 && (
-          <tr><td colSpan={6} className="py-4 text-center text-gray-400">データがありません</td></tr>
+          <tr><td colSpan={4} className="py-4 text-center text-gray-400">データがありません</td></tr>
         )}
       </tbody>
     </table>

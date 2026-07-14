@@ -2,15 +2,7 @@
 
 import { useState } from 'react';
 import { apiFetch, ApiError } from '@/lib/api-client';
-
-interface AttendanceRecord {
-  id: number;
-  date: string;
-  clockIn: string;
-  clockOut: string | null;
-  workMinutes: number | null;
-  overtimeMinutes: number | null;
-}
+import type { AttendanceRecord } from '@/types/attendance';
 
 interface ClockButtonProps {
   todayRecord: AttendanceRecord | null;
@@ -33,6 +25,8 @@ export function ClockButton({ todayRecord, onUpdate }: ClockButtonProps) {
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.status === 409 ? '既に出勤済みです' : '打刻に失敗しました');
+      } else {
+        setError('打刻に失敗しました');
       }
     } finally {
       setLoading(false);
@@ -48,6 +42,8 @@ export function ClockButton({ todayRecord, onUpdate }: ClockButtonProps) {
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.status === 409 ? '既に退勤済みです' : '打刻に失敗しました');
+      } else {
+        setError('打刻に失敗しました');
       }
     } finally {
       setLoading(false);

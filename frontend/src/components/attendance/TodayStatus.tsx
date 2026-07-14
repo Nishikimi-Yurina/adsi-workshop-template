@@ -1,11 +1,6 @@
 'use client';
 
-interface AttendanceRecord {
-  clockIn: string;
-  clockOut: string | null;
-  workMinutes: number | null;
-  overtimeMinutes: number | null;
-}
+import type { AttendanceRecord } from '@/types/attendance';
 
 interface TodayStatusProps {
   record: AttendanceRecord | null;

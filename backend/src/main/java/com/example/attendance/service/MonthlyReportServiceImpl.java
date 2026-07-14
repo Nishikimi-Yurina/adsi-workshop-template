@@ -40,10 +40,13 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         LocalDate start = yearMonth.atDay(1);
         LocalDate end = yearMonth.atEndOfMonth();
         List<Employee> employees = employeeRepository.findAll();
+        List<AttendanceRecord> allRecords = attendanceRepository.findByDateBetween(start, end);
+
+        var recordsByEmployee = allRecords.stream()
+                .collect(java.util.stream.Collectors.groupingBy(AttendanceRecord::getEmployeeId));
 
         return employees.stream().map(employee -> {
-            List<AttendanceRecord> records = attendanceRepository.findByEmployeeIdAndDateBetween(
-                    employee.getId(), start, end);
+            List<AttendanceRecord> records = recordsByEmployee.getOrDefault(employee.getId(), List.of());
             return buildReport(employee, yearMonth, records);
         }).toList();
     }
@@ -68,9 +71,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 yearMonth.toString(),
                 workDays,
                 totalWorkMinutes,
-                totalOvertimeMinutes,
-                0,
-                0
+                totalOvertimeMinutes
         );
     }
 }

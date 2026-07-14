@@ -46,7 +46,7 @@ class ReportControllerTest {
     @DisplayName("GET /api/reports/monthly: 自分の月次レポートを取得できる")
     void getMonthlyReport_success() throws Exception {
         when(authService.getEmployeeId("user01")).thenReturn(2L);
-        var report = new MonthlyReportResponse(2L, "山田太郎", "2026-07", 20, 9600, 400, 1, 0);
+        var report = new MonthlyReportResponse(2L, "山田太郎", "2026-07", 20, 9600, 400);
         when(monthlyReportService.getReport(eq(2L), eq(YearMonth.of(2026, 7)))).thenReturn(report);
 
         mockMvc.perform(get("/api/reports/monthly").param("yearMonth", "2026-07"))
@@ -62,8 +62,8 @@ class ReportControllerTest {
         var admin = Employee.builder().id(1L).employeeCode("admin").name("管理者").role(Role.ADMIN).build();
         when(authService.getEmployee("admin")).thenReturn(admin);
         var reports = List.of(
-                new MonthlyReportResponse(1L, "管理者", "2026-07", 22, 10560, 0, 0, 0),
-                new MonthlyReportResponse(2L, "山田太郎", "2026-07", 20, 9600, 400, 1, 0)
+                new MonthlyReportResponse(1L, "管理者", "2026-07", 22, 10560, 0),
+                new MonthlyReportResponse(2L, "山田太郎", "2026-07", 20, 9600, 400)
         );
         when(monthlyReportService.getAllReports(eq(YearMonth.of(2026, 7)))).thenReturn(reports);
 

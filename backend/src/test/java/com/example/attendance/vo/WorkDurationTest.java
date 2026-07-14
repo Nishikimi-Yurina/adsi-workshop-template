@@ -62,4 +62,40 @@ class WorkDurationTest {
 
         assertThat(result).isNull();
     }
+
+    @Test
+    @DisplayName("479分勤務の場合、残業は0分")
+    void calculate_479minutes_noOvertime() {
+        var clockIn = LocalDateTime.of(2026, 7, 14, 9, 0);
+        var clockOut = LocalDateTime.of(2026, 7, 14, 16, 59);
+
+        var result = WorkDuration.calculate(clockIn, clockOut);
+
+        assertThat(result.totalMinutes()).isEqualTo(479);
+        assertThat(result.overtimeMinutes()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("481分勤務の場合、残業は1分")
+    void calculate_481minutes_1minuteOvertime() {
+        var clockIn = LocalDateTime.of(2026, 7, 14, 9, 0);
+        var clockOut = LocalDateTime.of(2026, 7, 14, 17, 1);
+
+        var result = WorkDuration.calculate(clockIn, clockOut);
+
+        assertThat(result.totalMinutes()).isEqualTo(481);
+        assertThat(result.overtimeMinutes()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("0分勤務（出退勤同時刻）の場合、残業は0分")
+    void calculate_0minutes_noOvertime() {
+        var clockIn = LocalDateTime.of(2026, 7, 14, 9, 0);
+        var clockOut = LocalDateTime.of(2026, 7, 14, 9, 0);
+
+        var result = WorkDuration.calculate(clockIn, clockOut);
+
+        assertThat(result.totalMinutes()).isEqualTo(0);
+        assertThat(result.overtimeMinutes()).isEqualTo(0);
+    }
 }

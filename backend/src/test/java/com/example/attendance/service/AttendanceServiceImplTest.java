@@ -143,6 +143,28 @@ class AttendanceServiceImplTest {
     }
 
     @Test
+    @DisplayName("打刻修正: clockOutをnullに戻して退勤取消ができる")
+    void updateRecord_clearClockOut_success() {
+        var record = AttendanceRecord.builder()
+                .id(1L).employeeId(1L)
+                .date(LocalDate.of(2026, 7, 14))
+                .clockIn(LocalDateTime.of(2026, 7, 14, 9, 0))
+                .clockOut(LocalDateTime.of(2026, 7, 14, 18, 0))
+                .build();
+        when(repository.findById(1L)).thenReturn(Optional.of(record));
+        when(repository.save(any(AttendanceRecord.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        var request = new AttendanceRecordUpdateRequest(
+                LocalDateTime.of(2026, 7, 14, 9, 0), null
+        );
+
+        AttendanceRecordResponse result = service.updateRecord(1L, 1L, request);
+
+        assertThat(result.clockOut()).isNull();
+        assertThat(result.workMinutes()).isNull();
+    }
+
+    @Test
     @DisplayName("勤怠一覧: 指定月の記録が取得できる")
     void getRecords_returnsMonthlyRecords() {
         var records = List.of(

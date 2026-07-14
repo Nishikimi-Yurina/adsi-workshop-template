@@ -1,6 +1,6 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? '';
 
-export function apiPath(path: string): string {
+export function withBasePath(path: string): string {
   return `${API_BASE}${path}`;
 }
 
@@ -11,7 +11,7 @@ interface FetchOptions extends RequestInit {
 export async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
   const { skipAuth, ...fetchOptions } = options;
 
-  const response = await fetch(apiPath(path), {
+  const response = await fetch(withBasePath(path), {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
