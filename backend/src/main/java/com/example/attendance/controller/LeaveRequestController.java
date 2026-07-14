@@ -2,8 +2,6 @@ package com.example.attendance.controller;
 
 import com.example.attendance.dto.LeaveRequestCreateRequest;
 import com.example.attendance.dto.LeaveRequestResponse;
-import com.example.attendance.entity.Employee;
-import com.example.attendance.repository.EmployeeRepository;
 import com.example.attendance.service.LeaveRequestService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,21 +16,18 @@ import java.util.List;
 public class LeaveRequestController {
 
     private final LeaveRequestService leaveRequestService;
-    private final EmployeeRepository employeeRepository;
 
-    public LeaveRequestController(LeaveRequestService leaveRequestService,
-                                  EmployeeRepository employeeRepository) {
+    public LeaveRequestController(LeaveRequestService leaveRequestService) {
         this.leaveRequestService = leaveRequestService;
-        this.employeeRepository = employeeRepository;
     }
 
     @GetMapping
     public ResponseEntity<List<LeaveRequestResponse>> findAll(
             @RequestParam(required = false) String status,
             Authentication authentication) {
-        var employee = getEmployee(authentication);
-        var results = leaveRequestService.findAll(
-                employee.getId(), employee.getRole().name(), status);
+        var results = status != null
+                ? leaveRequestService.findAllByStatus(status, authentication.getName())
+                : leaveRequestService.findAll(authentication.getName());
         return ResponseEntity.ok(results);
     }
 
@@ -40,8 +35,7 @@ public class LeaveRequestController {
     public ResponseEntity<LeaveRequestResponse> create(
             @Valid @RequestBody LeaveRequestCreateRequest request,
             Authentication authentication) {
-        var employee = getEmployee(authentication);
-        var response = leaveRequestService.create(request, employee.getId());
+        var response = leaveRequestService.create(request, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -49,8 +43,7 @@ public class LeaveRequestController {
     public ResponseEntity<LeaveRequestResponse> approve(
             @PathVariable Long id,
             Authentication authentication) {
-        var employee = getEmployee(authentication);
-        var response = leaveRequestService.approve(id, employee.getId());
+        var response = leaveRequestService.approve(id, authentication.getName());
         return ResponseEntity.ok(response);
     }
 
@@ -58,13 +51,7 @@ public class LeaveRequestController {
     public ResponseEntity<LeaveRequestResponse> reject(
             @PathVariable Long id,
             Authentication authentication) {
-        var employee = getEmployee(authentication);
-        var response = leaveRequestService.reject(id, employee.getId());
+        var response = leaveRequestService.reject(id, authentication.getName());
         return ResponseEntity.ok(response);
-    }
-
-    private Employee getEmployee(Authentication authentication) {
-        return employeeRepository.findByEmployeeCode(authentication.getName())
-                .orElseThrow(() -> new IllegalStateException("ユーザーが見つかりません"));
     }
 }

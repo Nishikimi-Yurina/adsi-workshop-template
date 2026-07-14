@@ -38,6 +38,7 @@ class OvertimeRequestServiceImplTest {
     private OvertimeRequestServiceImpl service;
 
     private Employee employee;
+    private Employee admin;
 
     @BeforeEach
     void setUp() {
@@ -46,6 +47,12 @@ class OvertimeRequestServiceImplTest {
                 .employeeCode("EMP001")
                 .name("テスト太郎")
                 .role(Role.EMPLOYEE)
+                .build();
+        admin = Employee.builder()
+                .id(2L)
+                .employeeCode("ADMIN001")
+                .name("管理者")
+                .role(Role.ADMIN)
                 .build();
     }
 
@@ -62,11 +69,11 @@ class OvertimeRequestServiceImplTest {
                 .reason("納期対応")
                 .status(ApprovalStatus.PENDING)
                 .build();
+        when(employeeRepository.findByEmployeeCode("EMP001")).thenReturn(Optional.of(employee));
         when(overtimeRequestRepository.save(any())).thenReturn(saved);
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
 
         // Act
-        var result = service.create(request, 1L);
+        var result = service.create(request, "EMP001");
 
         // Assert
         assertThat(result.status()).isEqualTo("PENDING");
@@ -80,11 +87,12 @@ class OvertimeRequestServiceImplTest {
         var overtime = OvertimeRequest.builder()
                 .id(1L).employeeId(1L).date(LocalDate.of(2026, 7, 20))
                 .expectedHours(new BigDecimal("1.00")).status(ApprovalStatus.PENDING).build();
+        when(employeeRepository.findByEmployeeCode("EMP001")).thenReturn(Optional.of(employee));
         when(overtimeRequestRepository.findByEmployeeId(1L)).thenReturn(List.of(overtime));
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+        when(employeeRepository.findAllById(List.of(1L))).thenReturn(List.of(employee));
 
         // Act
-        var results = service.findAll(1L, "EMPLOYEE", null);
+        var results = service.findAll("EMP001");
 
         // Assert
         assertThat(results).hasSize(1);
@@ -97,11 +105,12 @@ class OvertimeRequestServiceImplTest {
         var overtime = OvertimeRequest.builder()
                 .id(1L).employeeId(1L).date(LocalDate.of(2026, 7, 20))
                 .expectedHours(new BigDecimal("1.00")).status(ApprovalStatus.PENDING).build();
+        when(employeeRepository.findByEmployeeCode("ADMIN001")).thenReturn(Optional.of(admin));
         when(overtimeRequestRepository.findAll()).thenReturn(List.of(overtime));
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+        when(employeeRepository.findAllById(List.of(1L))).thenReturn(List.of(employee));
 
         // Act
-        var results = service.findAll(1L, "ADMIN", null);
+        var results = service.findAll("ADMIN001");
 
         // Assert
         assertThat(results).hasSize(1);
@@ -114,12 +123,13 @@ class OvertimeRequestServiceImplTest {
         var entity = OvertimeRequest.builder()
                 .id(1L).employeeId(1L).date(LocalDate.of(2026, 7, 20))
                 .expectedHours(new BigDecimal("1.00")).status(ApprovalStatus.PENDING).build();
+        when(employeeRepository.findByEmployeeCode("ADMIN001")).thenReturn(Optional.of(admin));
         when(overtimeRequestRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(overtimeRequestRepository.save(any())).thenAnswer(i -> i.getArgument(0));
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
 
         // Act
-        var result = service.approve(1L, 2L);
+        var result = service.approve(1L, "ADMIN001");
 
         // Assert
         assertThat(result.status()).isEqualTo("APPROVED");
@@ -132,12 +142,29 @@ class OvertimeRequestServiceImplTest {
         var entity = OvertimeRequest.builder()
                 .id(1L).employeeId(1L).date(LocalDate.of(2026, 7, 20))
                 .expectedHours(new BigDecimal("1.00")).status(ApprovalStatus.APPROVED).build();
+        when(employeeRepository.findByEmployeeCode("ADMIN001")).thenReturn(Optional.of(admin));
         when(overtimeRequestRepository.findById(1L)).thenReturn(Optional.of(entity));
 
         // Act & Assert
-        assertThatThrownBy(() -> service.approve(1L, 2L))
+        assertThatThrownBy(() -> service.approve(1L, "ADMIN001"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("この申請は既に処理済みです");
+    }
+
+    @Test
+    @DisplayName("自分の申請は承認できない")
+    void approve_ownRequest_throwsException() {
+        // Arrange
+        var entity = OvertimeRequest.builder()
+                .id(1L).employeeId(1L).date(LocalDate.of(2026, 7, 20))
+                .expectedHours(new BigDecimal("1.00")).status(ApprovalStatus.PENDING).build();
+        when(employeeRepository.findByEmployeeCode("EMP001")).thenReturn(Optional.of(employee));
+        when(overtimeRequestRepository.findById(1L)).thenReturn(Optional.of(entity));
+
+        // Act & Assert
+        assertThatThrownBy(() -> service.approve(1L, "EMP001"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("自分の申請を承認することはできません");
     }
 
     @Test
@@ -147,12 +174,13 @@ class OvertimeRequestServiceImplTest {
         var entity = OvertimeRequest.builder()
                 .id(1L).employeeId(1L).date(LocalDate.of(2026, 7, 20))
                 .expectedHours(new BigDecimal("1.00")).status(ApprovalStatus.PENDING).build();
+        when(employeeRepository.findByEmployeeCode("ADMIN001")).thenReturn(Optional.of(admin));
         when(overtimeRequestRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(overtimeRequestRepository.save(any())).thenAnswer(i -> i.getArgument(0));
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
 
         // Act
-        var result = service.reject(1L, 2L);
+        var result = service.reject(1L, "ADMIN001");
 
         // Assert
         assertThat(result.status()).isEqualTo("REJECTED");

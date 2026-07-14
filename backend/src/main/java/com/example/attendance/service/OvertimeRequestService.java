@@ -7,11 +7,13 @@ import java.util.List;
 
 public interface OvertimeRequestService {
 
-    OvertimeRequestResponse create(OvertimeRequestCreateRequest request, Long employeeId);
+    OvertimeRequestResponse create(OvertimeRequestCreateRequest request, String employeeCode);
 
-    List<OvertimeRequestResponse> findAll(Long employeeId, String role, String statusFilter);
+    List<OvertimeRequestResponse> findAll(String employeeCode);
 
-    OvertimeRequestResponse approve(Long id, Long approverId);
+    List<OvertimeRequestResponse> findAllByStatus(String statusFilter, String employeeCode);
 
-    OvertimeRequestResponse reject(Long id, Long approverId);
+    OvertimeRequestResponse approve(Long id, String approverCode);
+
+    OvertimeRequestResponse reject(Long id, String approverCode);
 }

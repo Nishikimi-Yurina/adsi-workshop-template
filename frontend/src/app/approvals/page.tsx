@@ -47,6 +47,7 @@ export default function ApprovalsPage() {
   const [pendingOvertime, setPendingOvertime] = useState<OvertimeRequest[]>([]);
   const [processedLeave, setProcessedLeave] = useState<LeaveRequest[]>([]);
   const [processedOvertime, setProcessedOvertime] = useState<OvertimeRequest[]>([]);
+  const [error, setError] = useState('');
 
   const fetchPending = async () => {
     const [leave, overtime] = await Promise.all([
@@ -74,15 +75,25 @@ export default function ApprovalsPage() {
   }, []);
 
   const handleLeaveAction = async (id: number, action: 'approve' | 'reject') => {
-    await apiFetch(`/api/leave-requests/${id}/${action}`, { method: 'PUT' });
-    fetchPending();
-    fetchProcessed();
+    setError('');
+    try {
+      await apiFetch(`/api/leave-requests/${id}/${action}`, { method: 'PUT' });
+      fetchPending();
+      fetchProcessed();
+    } catch {
+      setError('操作に失敗しました');
+    }
   };
 
   const handleOvertimeAction = async (id: number, action: 'approve' | 'reject') => {
-    await apiFetch(`/api/overtime-requests/${id}/${action}`, { method: 'PUT' });
-    fetchPending();
-    fetchProcessed();
+    setError('');
+    try {
+      await apiFetch(`/api/overtime-requests/${id}/${action}`, { method: 'PUT' });
+      fetchPending();
+      fetchProcessed();
+    } catch {
+      setError('操作に失敗しました');
+    }
   };
 
   const pendingCount = pendingLeave.length + pendingOvertime.length;
@@ -91,6 +102,7 @@ export default function ApprovalsPage() {
   return (
     <Layout>
       <h1 className="text-xl font-bold mb-4">承認管理</h1>
+      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
       <div className="flex gap-2 mb-4">
         <button

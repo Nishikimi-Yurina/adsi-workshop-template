@@ -7,11 +7,13 @@ import java.util.List;
 
 public interface LeaveRequestService {
 
-    LeaveRequestResponse create(LeaveRequestCreateRequest request, Long employeeId);
+    LeaveRequestResponse create(LeaveRequestCreateRequest request, String employeeCode);
 
-    List<LeaveRequestResponse> findAll(Long employeeId, String role, String statusFilter);
+    List<LeaveRequestResponse> findAll(String employeeCode);
 
-    LeaveRequestResponse approve(Long id, Long approverId);
+    List<LeaveRequestResponse> findAllByStatus(String statusFilter, String employeeCode);
 
-    LeaveRequestResponse reject(Long id, Long approverId);
+    LeaveRequestResponse approve(Long id, String approverCode);
+
+    LeaveRequestResponse reject(Long id, String approverCode);
 }
