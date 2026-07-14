@@ -8,8 +8,8 @@ type View = 'dashboard' | 'attendance' | 'reports';
 
 interface LayoutProps {
   children: React.ReactNode;
-  onNavigate: (view: View) => void;
-  currentView: View;
+  onNavigate?: (view: View) => void;
+  currentView?: View;
 }
 
 export function Layout({ children, onNavigate, currentView }: LayoutProps) {
@@ -17,7 +17,9 @@ export function Layout({ children, onNavigate, currentView }: LayoutProps) {
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex flex-1">
-        <Sidebar onNavigate={onNavigate} currentView={currentView} />
+        {onNavigate && currentView && (
+          <Sidebar onNavigate={onNavigate} currentView={currentView} />
+        )}
         <main className="flex-1 p-6 bg-gray-100">{children}</main>
       </div>
     </div>

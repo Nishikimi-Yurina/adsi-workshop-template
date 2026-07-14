@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AuthProvider } from '@/context/AuthContext';
 import { apiFetch } from '@/lib/api-client';
 import { Layout } from '@/components/layout/Layout';
 
@@ -20,7 +21,15 @@ const STATUS_LABELS: Record<string, string> = {
   REJECTED: '却下',
 };
 
-export default function OvertimeRequestsPage() {
+export default function Page() {
+  return (
+    <AuthProvider>
+      <OvertimeRequestsPage />
+    </AuthProvider>
+  );
+}
+
+function OvertimeRequestsPage() {
   const [requests, setRequests] = useState<OvertimeRequest[]>([]);
   const [date, setDate] = useState('');
   const [expectedHours, setExpectedHours] = useState('');

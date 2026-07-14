@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AuthProvider } from '@/context/AuthContext';
 import { apiFetch } from '@/lib/api-client';
 import { Layout } from '@/components/layout/Layout';
 
@@ -25,7 +26,15 @@ const STATUS_LABELS: Record<string, string> = {
   REJECTED: '却下',
 };
 
-export default function LeaveRequestsPage() {
+export default function Page() {
+  return (
+    <AuthProvider>
+      <LeaveRequestsPage />
+    </AuthProvider>
+  );
+}
+
+function LeaveRequestsPage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [leaveType, setLeaveType] = useState('PAID_LEAVE');
   const [date, setDate] = useState('');

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AuthProvider } from '@/context/AuthContext';
 import { apiFetch } from '@/lib/api-client';
 import { Layout } from '@/components/layout/Layout';
 
@@ -40,7 +41,15 @@ const STATUS_COLORS: Record<string, string> = {
   REJECTED: 'text-red-700 bg-red-100',
 };
 
-export default function ApprovalsPage() {
+export default function Page() {
+  return (
+    <AuthProvider>
+      <ApprovalsPage />
+    </AuthProvider>
+  );
+}
+
+function ApprovalsPage() {
   const [mainTab, setMainTab] = useState<MainTab>('pending');
   const [subTab, setSubTab] = useState<SubTab>('leave');
   const [pendingLeave, setPendingLeave] = useState<LeaveRequest[]>([]);
