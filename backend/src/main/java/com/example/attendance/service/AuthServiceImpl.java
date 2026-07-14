@@ -39,9 +39,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public EmployeeResponse getCurrentUser(String employeeCode) {
-        Employee employee = employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("ユーザーが見つかりません"));
-
+        Employee employee = getEmployee(employeeCode);
         return new EmployeeResponse(
                 employee.getId(),
                 employee.getEmployeeCode(),
@@ -49,5 +47,16 @@ public class AuthServiceImpl implements AuthService {
                 employee.getEmail(),
                 employee.getRole()
         );
+    }
+
+    @Override
+    public Long getEmployeeId(String employeeCode) {
+        return getEmployee(employeeCode).getId();
+    }
+
+    @Override
+    public Employee getEmployee(String employeeCode) {
+        return employeeRepository.findByEmployeeCode(employeeCode)
+                .orElseThrow(() -> new BadCredentialsException("認証エラーが発生しました"));
     }
 }

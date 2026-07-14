@@ -3,7 +3,7 @@ package com.example.attendance.controller;
 import com.example.attendance.dto.MonthlyReportResponse;
 import com.example.attendance.entity.Employee;
 import com.example.attendance.enums.Role;
-import com.example.attendance.repository.EmployeeRepository;
+import com.example.attendance.service.AuthService;
 import com.example.attendance.service.MonthlyReportService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +22,18 @@ import java.util.List;
 public class ReportController {
 
     private final MonthlyReportService monthlyReportService;
-    private final EmployeeRepository employeeRepository;
+    private final AuthService authService;
 
-    public ReportController(MonthlyReportService monthlyReportService, EmployeeRepository employeeRepository) {
+    public ReportController(MonthlyReportService monthlyReportService, AuthService authService) {
         this.monthlyReportService = monthlyReportService;
-        this.employeeRepository = employeeRepository;
+        this.authService = authService;
     }
 
     @GetMapping("/monthly")
     public ResponseEntity<MonthlyReportResponse> getMonthlyReport(
             @RequestParam String yearMonth,
             Authentication authentication) {
-        Long employeeId = getEmployeeId(authentication);
+        Long employeeId = authService.getEmployeeId(authentication.getName());
         return ResponseEntity.ok(monthlyReportService.getReport(employeeId, YearMonth.parse(yearMonth)));
     }
 
@@ -41,18 +41,10 @@ public class ReportController {
     public ResponseEntity<List<MonthlyReportResponse>> getAllMonthlyReports(
             @RequestParam String yearMonth,
             Authentication authentication) {
-        Employee employee = getEmployee(authentication);
+        Employee employee = authService.getEmployee(authentication.getName());
         if (employee.getRole() != Role.ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "管理者のみアクセス可能です");
         }
         return ResponseEntity.ok(monthlyReportService.getAllReports(YearMonth.parse(yearMonth)));
-    }
-
-    private Long getEmployeeId(Authentication authentication) {
-        return getEmployee(authentication).getId();
-    }
-
-    private Employee getEmployee(Authentication authentication) {
-        return employeeRepository.findByEmployeeCode(authentication.getName()).orElseThrow();
     }
 }

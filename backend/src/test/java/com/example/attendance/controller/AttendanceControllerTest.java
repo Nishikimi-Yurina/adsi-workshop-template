@@ -3,10 +3,9 @@ package com.example.attendance.controller;
 import com.example.attendance.config.SecurityConfig;
 import com.example.attendance.dto.AttendanceRecordResponse;
 import com.example.attendance.dto.AttendanceRecordUpdateRequest;
-import com.example.attendance.entity.Employee;
-import com.example.attendance.enums.Role;
 import com.example.attendance.repository.EmployeeRepository;
 import com.example.attendance.service.AttendanceService;
+import com.example.attendance.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,13 +46,16 @@ class AttendanceControllerTest {
     private AttendanceService attendanceService;
 
     @MockitoBean
+    private AuthService authService;
+
+    @MockitoBean
     private EmployeeRepository employeeRepository;
 
     @Test
     @WithMockUser(username = "admin")
     @DisplayName("POST /api/attendance/clock-in: 出勤打刻が成功する")
     void clockIn_success() throws Exception {
-        mockEmployee("admin", 1L);
+        when(authService.getEmployeeId("admin")).thenReturn(1L);
         var response = new AttendanceRecordResponse(1L, LocalDate.now(), LocalDateTime.now(), null, null, null);
         when(attendanceService.clockIn(1L)).thenReturn(response);
 
@@ -67,7 +68,7 @@ class AttendanceControllerTest {
     @WithMockUser(username = "admin")
     @DisplayName("POST /api/attendance/clock-in: 二重打刻で409")
     void clockIn_conflict() throws Exception {
-        mockEmployee("admin", 1L);
+        when(authService.getEmployeeId("admin")).thenReturn(1L);
         when(attendanceService.clockIn(1L))
                 .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
@@ -79,7 +80,7 @@ class AttendanceControllerTest {
     @WithMockUser(username = "admin")
     @DisplayName("POST /api/attendance/clock-out: 退勤打刻が成功する")
     void clockOut_success() throws Exception {
-        mockEmployee("admin", 1L);
+        when(authService.getEmployeeId("admin")).thenReturn(1L);
         var response = new AttendanceRecordResponse(1L, LocalDate.now(),
                 LocalDateTime.now().minusHours(8), LocalDateTime.now(), 480, 0);
         when(attendanceService.clockOut(1L)).thenReturn(response);
@@ -93,7 +94,7 @@ class AttendanceControllerTest {
     @WithMockUser(username = "admin")
     @DisplayName("GET /api/attendance/records: 月別勤怠一覧を取得できる")
     void getRecords_success() throws Exception {
-        mockEmployee("admin", 1L);
+        when(authService.getEmployeeId("admin")).thenReturn(1L);
         var records = List.of(
                 new AttendanceRecordResponse(1L, LocalDate.of(2026, 7, 1),
                         LocalDateTime.of(2026, 7, 1, 9, 0), LocalDateTime.of(2026, 7, 1, 18, 0), 540, 60)
@@ -109,7 +110,7 @@ class AttendanceControllerTest {
     @WithMockUser(username = "admin")
     @DisplayName("PUT /api/attendance/records/{id}: 打刻修正が成功する")
     void updateRecord_success() throws Exception {
-        mockEmployee("admin", 1L);
+        when(authService.getEmployeeId("admin")).thenReturn(1L);
         var response = new AttendanceRecordResponse(1L, LocalDate.of(2026, 7, 14),
                 LocalDateTime.of(2026, 7, 14, 8, 30), LocalDateTime.of(2026, 7, 14, 17, 30), 540, 60);
         when(attendanceService.updateRecord(eq(1L), eq(1L), any())).thenReturn(response);
@@ -131,10 +132,5 @@ class AttendanceControllerTest {
     void unauthenticated_returns401() throws Exception {
         mockMvc.perform(post("/api/attendance/clock-in").with(csrf()))
                 .andExpect(status().isUnauthorized());
-    }
-
-    private void mockEmployee(String code, Long id) {
-        var employee = Employee.builder().id(id).employeeCode(code).name("テスト").role(Role.ADMIN).build();
-        when(employeeRepository.findByEmployeeCode(code)).thenReturn(Optional.of(employee));
     }
 }
