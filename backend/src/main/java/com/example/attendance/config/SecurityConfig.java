@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/leave-requests/{id}/approve", "/api/leave-requests/{id}/reject").hasRole("ADMIN")
+                        .requestMatchers("/api/overtime-requests/{id}/approve", "/api/overtime-requests/{id}/reject").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
