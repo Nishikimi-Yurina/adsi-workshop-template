@@ -5,6 +5,9 @@ const basePath = isSagemaker ? '/codeeditor/default/absports/3000' : '';
 const nextConfig = {
   basePath,
   skipTrailingSlashRedirect: isSagemaker,
+  env: {
+    NEXT_PUBLIC_API_BASE: basePath,
+  },
   async rewrites() {
     return [
       {

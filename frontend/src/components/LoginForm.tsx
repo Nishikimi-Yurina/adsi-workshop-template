@@ -21,8 +21,10 @@ export function LoginForm() {
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError('ユーザー名またはパスワードが正しくありません');
+      } else if (err instanceof ApiError) {
+        setError(`ログインに失敗しました (${err.status})`);
       } else {
-        setError('ログインに失敗しました');
+        setError(`ログインに失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`);
       }
     } finally {
       setLoading(false);
